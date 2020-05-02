@@ -1,0 +1,26 @@
+plugins {
+    id 'java'
+}
+
+group 'ru'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+
+dependencies {
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.2.6.RELEASE'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: '2.2.6.RELEASE'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: '2.2.6.RELEASE'
+    compile group: 'javax.servlet', name: 'jstl', version: '1.2'
+    compile group: 'org.apache.tomcat.embed', name: 'tomcat-embed-jasper', version: '9.0.27'
+    compile group: 'org.springframework.security', name: 'spring-security-taglibs', version: '5.2.0.RELEASE'
+    compile group: 'io.jsonwebtoken', name: 'jjwt', version: '0.6.0'
+
+    runtime("org.postgresql:postgresql:42.2.12")
+}
+
+
+
