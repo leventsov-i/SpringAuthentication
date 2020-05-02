@@ -1,5 +1,6 @@
 package ru.auth.service;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import ru.auth.dto.AuthenticationBodyDTO;
 import ru.auth.dto.NewUserDTO;
 import ru.auth.entity.User;
@@ -25,6 +26,9 @@ public class AuthenticationService {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private PasswordEncoder bCryptPasswordEncoder;
+
     public boolean registration(NewUserDTO newUser) {
         User userExists = userService.findByUsername(newUser.getUsername());
         if (userExists != null) {
@@ -33,6 +37,7 @@ public class AuthenticationService {
         User user = new User();
         user.setUsername(newUser.getUsername());
         user.setPassword(newUser.getPassword());
+        user.setDateChangePassword(System.currentTimeMillis());
         userService.saveUser(user);
         Map<Object, Object> model = new HashMap<>();
         model.put("message", "User registered successfully");
@@ -40,9 +45,9 @@ public class AuthenticationService {
     }
 
     public Map<String, String> login(AuthenticationBodyDTO data) {
-            String username = data.getEmail();
+            String username = data.getUsername();
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, data.getPassword()));
-            String token = jwtTokenProvider.createToken(username, userService.findByUsername(username).getRoles());
+            String token = jwtTokenProvider.createToken(userService.findByUsername(username));
             Map<String, String> model = new HashMap<>();
             model.put("username", username);
             model.put("token", token);

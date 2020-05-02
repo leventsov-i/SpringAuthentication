@@ -18,10 +18,9 @@ public class User implements UserDetails {
     private String username;
     @Size(min=7, message = "Не меньше 7 знаков")
     private String password;
-    @Transient
-    private String passwordConfirm;
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Role> roles;
+    private Long dateChangePassword;
 
     public User() {
     }
@@ -77,14 +76,6 @@ public class User implements UserDetails {
         this.password = password;
     }
 
-    public String getPasswordConfirm() {
-        return passwordConfirm;
-    }
-
-    public void setPasswordConfirm(String passwordConfirm) {
-        this.passwordConfirm = passwordConfirm;
-    }
-
     public Set<Role> getRoles() {
         return roles;
     }
@@ -93,4 +84,11 @@ public class User implements UserDetails {
         this.roles = roles;
     }
 
+    public Long getDateChangePassword() {
+        return dateChangePassword;
+    }
+
+    public void setDateChangePassword(Long dateChangePassword) {
+        this.dateChangePassword = dateChangePassword;
+    }
 }

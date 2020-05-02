@@ -8,6 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
+import ru.auth.entity.User;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +18,7 @@ import java.util.Set;
 
 @Component
 public class JwtTokenProvider {
+    private static final String KEY_DATE_CHANGE_PASSWORD = "dateChangePassword";
     //@Value("${security.jwt.token.secret-key:secret}")
     private String secretKey = "secret";
 
@@ -31,9 +33,10 @@ public class JwtTokenProvider {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
-    public String createToken(String username, Set<Role> set) {
-        Claims claims = Jwts.claims().setSubject(username);
-        claims.put("roles", set);
+    public String createToken(User user) {
+        Claims claims = Jwts.claims().setSubject(user.getUsername());
+        claims.put("roles", user.getRoles());
+        claims.put(KEY_DATE_CHANGE_PASSWORD, user.getDateChangePassword());
         Date now = new Date();
         Date validity = new Date(now.getTime() + validityInMilliseconds);
         return Jwts.builder()
@@ -45,7 +48,7 @@ public class JwtTokenProvider {
     }
 
     public Authentication getAuthentication(String token) {
-        UserDetails userDetails = this.userDetailsService.loadUserByUsername(getUsername(token));
+        UserDetails userDetails = userDetailsService.loadUserByUsername(getUsername(token));
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
@@ -64,7 +67,11 @@ public class JwtTokenProvider {
     public boolean validateToken(String token) {
         try {
             Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+            User user = (User) userDetailsService.loadUserByUsername(claims.getBody().getSubject());
             if (claims.getBody().getExpiration().before(new Date())) {
+                return false;
+            }
+            if (!user.getDateChangePassword().equals(claims.getBody().get(KEY_DATE_CHANGE_PASSWORD))) {
                 return false;
             }
             return true;
