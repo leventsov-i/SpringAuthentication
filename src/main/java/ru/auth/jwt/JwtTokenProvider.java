@@ -71,7 +71,9 @@ public class JwtTokenProvider {
             if (claims.getBody().getExpiration().before(new Date())) {
                 return false;
             }
-            if (!user.getDateChangePassword().equals(claims.getBody().get(KEY_DATE_CHANGE_PASSWORD))) {
+
+            Number dateFromToken = claims.getBody().get(KEY_DATE_CHANGE_PASSWORD, Number.class);
+            if (user.getDateChangePassword() != dateFromToken.longValue()) {
                 return false;
             }
             return true;
