@@ -10,11 +10,13 @@ import java.util.Set;
 
 @Entity
 @Table(name = "t_user")
+
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Size(min=7, message = "Не меньше 7 знаков")
+    @Column(unique = true)
     private String username;
     @Size(min=7, message = "Не меньше 7 знаков")
     private String password;
