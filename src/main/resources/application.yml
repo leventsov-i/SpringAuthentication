@@ -1,3 +1,6 @@
+server:
+  port: 8080
+
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -11,3 +14,9 @@ spring:
       ddl-auto: update
     show-sql: false
     database-platform: org.hibernate.dialect.PostgreSQL10Dialect
+
+security:
+  jwt:
+    token:
+      secret-key: ${SECURITY_SECRET_KEY}
+      expire-length : ${SECURITY_EXPIRE_LENGHT}

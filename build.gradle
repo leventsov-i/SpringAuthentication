@@ -26,6 +26,10 @@ dependencies {
     compile group: 'org.apache.tomcat.embed', name: 'tomcat-embed-jasper', version: '9.0.27'
     compile group: 'org.springframework.security', name: 'spring-security-taglibs', version: '5.2.0.RELEASE'
     compile group: 'io.jsonwebtoken', name: 'jjwt', version: '0.6.0'
+    compile group: 'org.projectlombok', name: 'lombok', version: '1.18.12'
+    compile 'javax.xml.bind:jaxb-api:2.3.1'
+
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
 
     runtime("org.postgresql:postgresql:42.2.12")
 }

@@ -1,8 +1,7 @@
 package ru.auth.config;
 
-import ru.auth.jwt.JwtTokenProvider;
-import ru.auth.jwt.JwtConfigure;
 import org.springframework.beans.factory.annotation.Autowired;
+import ru.auth.jwt.JwtConfigure;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,15 +20,18 @@ import javax.servlet.http.HttpServletResponse;
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    @Autowired
-    JwtTokenProvider jwtTokenProvider;
+    private final UserDetailsService userService;
+    private final JwtConfigure jwtConfigure;
 
     @Autowired
-    UserDetailsService userDetailsService;
+    public WebSecurityConfig(UserDetailsService userService, JwtConfigure jwtConfigure) {
+        this.userService = userService;
+        this.jwtConfigure = jwtConfigure;
+    }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        UserDetailsService userDetailsService = this.userDetailsService;
+        UserDetailsService userDetailsService = this.userService;
         auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder());
     }
 
@@ -43,7 +45,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/**").authenticated()
                 .and().csrf()
                 .disable().exceptionHandling().authenticationEntryPoint(unauthorizedEntryPoint()).and()
-                .apply(new JwtConfigure(jwtTokenProvider));
+                .apply(jwtConfigure);
     }
 
     @Bean
