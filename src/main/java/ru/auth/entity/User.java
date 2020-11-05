@@ -9,7 +9,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.util.Collection;
-import java.util.Set;
 
 @Entity
 @Table(name = "t_user")
@@ -24,13 +23,10 @@ public class User implements UserDetails {
 
     @Size(min=7, message = "Не меньше 7 знаков")
     @Column(unique = true)
-    private String username;
+    private String email;
 
     @Size(min=7, message = "Не меньше 7 знаков")
     private String password;
-
-    @ManyToMany(fetch = FetchType.EAGER)
-    private Set<Role> roles;
 
     private boolean isLocked;
 
@@ -40,7 +36,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return username;
+        return email;
     }
 
     @Override
@@ -63,9 +59,10 @@ public class User implements UserDetails {
         return isEnabled;
     }
 
+    //не делал ролевую модель, только авторизация
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles;
+        return null;
     }
 
     @Override
@@ -73,8 +70,15 @@ public class User implements UserDetails {
         return password;
     }
 
+    public String getEmail() {
+        return getUsername();
+    }
 
-    public Set<Role> getRoles() {
-        return roles;
+    public Long getId() {
+        return id;
+    }
+
+    public void setEnabled(boolean enabled) {
+        isEnabled = enabled;
     }
 }

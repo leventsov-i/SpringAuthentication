@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
+import ru.auth.service.UserActivateService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
@@ -18,10 +19,13 @@ import javax.validation.ConstraintViolationException;
 @RequestMapping("/api/auth")
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
+    private final UserActivateService userActivateService;
 
     @Autowired
-    public AuthenticationController(AuthenticationService authenticationService) {
+    public AuthenticationController(AuthenticationService authenticationService,
+                                    UserActivateService userActivateService) {
         this.authenticationService = authenticationService;
+        this.userActivateService = userActivateService;
     }
 
     @PostMapping("/login")
@@ -37,24 +41,9 @@ public class AuthenticationController {
         return ResponseEntity.ok().build();
     }
 
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity handleAuthenticationException(Exception ex, HttpServletRequest request) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body("Invalid login or password");
+    @GetMapping("/activate/{code}")
+    public ResponseEntity activate(@PathVariable String code) {
+        userActivateService.activateUser(code);
+        return ResponseEntity.ok().build();
     }
-
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity handleLengthUsernameOrPassword(Exception ex, HttpServletRequest request) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body("Invalid length password or username. Should be 7 chars.");
-    }
-
-    //@ExceptionHandler(Exception.class)
-    //public ResponseEntity handleException(Exception ex, HttpServletRequest request) {
-    //    return ResponseEntity
-    //            .status(HttpStatus.INTERNAL_SERVER_ERROR)
-    //            .build();
-    //}
 }

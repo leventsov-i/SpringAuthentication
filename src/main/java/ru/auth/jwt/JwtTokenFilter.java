@@ -1,6 +1,9 @@
 package ru.auth.jwt;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -15,10 +18,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
+import ru.auth.entity.Role;
 import ru.auth.service.UserService;
 
 @Component
 public class JwtTokenFilter extends GenericFilterBean {
+    private final Set<Role> ONE_ROLE = Collections.singleton(new Role(1L, "ROLE_USER"));
     private final JwtTokenProvider jwtTokenProvider;
     private final UserService userService;
 
@@ -42,8 +47,7 @@ public class JwtTokenFilter extends GenericFilterBean {
         filterChain.doFilter(req, res);
     }
 
-
     private Authentication getAuthentication(UserDetails user) {
-        return new UsernamePasswordAuthenticationToken(user, "", user.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(user, "", ONE_ROLE);
     }
 }
