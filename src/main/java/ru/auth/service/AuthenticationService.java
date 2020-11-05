@@ -43,8 +43,10 @@ public class AuthenticationService {
         User user = User.builder()
                 .username(newUser.getUsername())
                 .password(passwordEncoder.encode(newUser.getPassword()))
-                .dateChangePassword(System.currentTimeMillis())
                 .roles(Collections.singleton(new Role(1L, "ROLE_USER")))
+                .isEnabled(true)
+                .isCredentialsExpired(false)
+                .isLocked(false)
                 .build();
 
         userRepository.save(user);

@@ -15,29 +15,28 @@ import java.util.Set;
 @Table(name = "t_user")
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class User implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Size(min=7, message = "Не меньше 7 знаков")
     @Column(unique = true)
     private String username;
+
     @Size(min=7, message = "Не меньше 7 знаков")
     private String password;
+
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Role> roles;
-    private Long dateChangePassword;
 
-    public User() {
-    }
+    private boolean isLocked;
 
-    public Long getId() {
-        return id;
-    }
+    private boolean isCredentialsExpired;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    private boolean isEnabled;
 
     @Override
     public String getUsername() {
@@ -51,26 +50,22 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return !isLocked;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true;
+        return !isCredentialsExpired;
     }
 
     @Override
     public boolean isEnabled() {
-        return true;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
+        return isEnabled;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return getRoles();
+        return roles;
     }
 
     @Override
@@ -78,23 +73,8 @@ public class User implements UserDetails {
         return password;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
 
     public Set<Role> getRoles() {
         return roles;
-    }
-
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
-    }
-
-    public Long getDateChangePassword() {
-        return dateChangePassword;
-    }
-
-    public void setDateChangePassword(Long dateChangePassword) {
-        this.dateChangePassword = dateChangePassword;
     }
 }

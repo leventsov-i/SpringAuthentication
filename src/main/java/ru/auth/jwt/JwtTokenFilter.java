@@ -1,7 +1,6 @@
 package ru.auth.jwt;
 
 import java.io.IOException;
-import java.util.Optional;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -10,29 +9,41 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
+import ru.auth.service.UserService;
 
 @Component
 public class JwtTokenFilter extends GenericFilterBean {
     private final JwtTokenProvider jwtTokenProvider;
+    private final UserService userService;
 
     @Autowired
-    public JwtTokenFilter(JwtTokenProvider jwtTokenProvider) {
+    public JwtTokenFilter(JwtTokenProvider jwtTokenProvider, UserService userService) {
         this.jwtTokenProvider = jwtTokenProvider;
+        this.userService = userService;
     }
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain filterChain) throws IOException, ServletException {
         jwtTokenProvider.resolveToken((HttpServletRequest) req)
-                .ifPresent(token -> {
-                    if (jwtTokenProvider.validateToken(token)) {
-                        Authentication auth = jwtTokenProvider.getAuthentication(token);
+                .flatMap(jwtTokenProvider::validateToken)
+                .ifPresent(username -> {
+                    UserDetails user = userService.loadUserByUsername(username);
+                    if (user.isCredentialsNonExpired() && user.isAccountNonLocked() && user.isEnabled()) {
+                        Authentication auth = getAuthentication(user);
                         SecurityContextHolder.getContext().setAuthentication(auth);
                     }
                 });
         filterChain.doFilter(req, res);
+    }
+
+
+    private Authentication getAuthentication(UserDetails user) {
+        return new UsernamePasswordAuthenticationToken(user, "", user.getAuthorities());
     }
 }
