@@ -20,7 +20,7 @@ spring:
     port: ${MAIL_PORT}
     username: ${MAIL_USERNAME}
     password: ${MAIL_PASSWORD}
-    address: &{ MAIL_ADDRESS }
+    address: &{MAIL_ADDRESS}
 
 security:
   jwt:

@@ -12,10 +12,12 @@ import ru.auth.repository.UserRepository;
 
 import java.sql.Timestamp;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class UserActivateService {
     public static final Integer LENGTH_ACTIVATE_CODE = 255;
+    private static final int FIVE_MINUTES = 5;
     private final MessageSenderService senderService;
     private final TimeCodeActivateUserRepository activateUserRepository;
     private final UserRepository userRepository;
@@ -39,6 +41,11 @@ public class UserActivateService {
         TimeCodeActivateUser timeCodeActivateUser = activateUserRepository
                 .findByTimeCode(timeCode)
                 .orElseThrow(() -> new RuntimeException("Not found time code"));
+        long timeStampWithFiveMinutes = timeCodeActivateUser.getTimestamp().getTime() + TimeUnit.MINUTES.toMillis(FIVE_MINUTES);
+
+        if (timeStampWithFiveMinutes > System.currentTimeMillis()) {
+            throw new RuntimeException("Time code not found");
+        }
 
         User user = userRepository
                 .findById(timeCodeActivateUser.getUserId())
