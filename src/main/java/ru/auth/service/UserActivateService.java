@@ -42,8 +42,7 @@ public class UserActivateService {
                 .findByTimeCode(timeCode)
                 .orElseThrow(() -> new RuntimeException("Not found time code"));
         long timeStampWithFiveMinutes = timeCodeActivateUser.getTimestamp().getTime() + TimeUnit.MINUTES.toMillis(FIVE_MINUTES);
-
-        if (timeStampWithFiveMinutes > System.currentTimeMillis()) {
+        if (timeStampWithFiveMinutes < System.currentTimeMillis()) {
             throw new RuntimeException("Time code not found");
         }
 

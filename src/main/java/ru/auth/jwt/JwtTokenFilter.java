@@ -19,6 +19,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 import ru.auth.entity.Role;
+import ru.auth.exception.AccountLockedException;
+import ru.auth.exception.NonExpiredCredentialsException;
+import ru.auth.exception.NotActivatedAccountException;
 import ru.auth.service.UserService;
 
 @Component
@@ -39,7 +42,7 @@ public class JwtTokenFilter extends GenericFilterBean {
                 .flatMap(jwtTokenProvider::validateToken)
                 .ifPresent(username -> {
                     UserDetails user = userService.loadUserByUsername(username);
-                    if (user.isCredentialsNonExpired() && user.isAccountNonLocked() && user.isEnabled()) {
+                    if (accountEnabled(user)) {
                         Authentication auth = getAuthentication(user);
                         SecurityContextHolder.getContext().setAuthentication(auth);
                     }
@@ -49,5 +52,18 @@ public class JwtTokenFilter extends GenericFilterBean {
 
     private Authentication getAuthentication(UserDetails user) {
         return new UsernamePasswordAuthenticationToken(user, "", ONE_ROLE);
+    }
+
+    private boolean accountEnabled(UserDetails user) {
+        if (!user.isCredentialsNonExpired()) {
+            throw new NonExpiredCredentialsException("Bad credentials for " + user.getUsername());
+        }
+        if (!user.isAccountNonLocked()) {
+            throw new AccountLockedException("Account locked for " + user.getUsername());
+        }
+        if (!user.isEnabled()) {
+            throw new NotActivatedAccountException("Not activate account " + user.getUsername());
+        }
+        return true;
     }
 }
